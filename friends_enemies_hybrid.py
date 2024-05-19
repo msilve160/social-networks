@@ -30,7 +30,7 @@ def get_graph():
     """
 
     # TODO: Change this parameter to change the size of the graph
-    graph_size = 4
+    graph_size = 500
 
     # Generate a random graph (with a 60% probability of edge creation)
     G = nx.gnp_random_graph(graph_size, 0.60)
@@ -50,9 +50,13 @@ def get_bqm(G):
         :obj:`BinaryQuadraticModel`: A binary-valued binary quadratic model
     """
     # Build the BQM
-
+    bqm = dimod.BinaryQuadraticModel('BINARY')
     # Add linear and quadratic biases to the BQM
-
+    for u,v in G.edges():
+        relationship = random.choice([-1,1])
+        bqm.add_variable(u,relationship)
+        bqm.add_variable(v,relationship)
+        bqm.add_interaction(u,v,relationship*(-2))
     return bqm
 
 
@@ -72,8 +76,8 @@ def run_on_hybrid(bqm):
     """
 
     # Define the sampler and submit the BQM
-
-    return
+    sampler = LeapHybridSampler()
+    return sampler.sample(bqm)
 
 def visualize(G, bqm, sampleset, problem_filename, solution_filename):
     """ Creates and saves plots that show the problem and solution returned in the lowest
@@ -227,6 +231,3 @@ if __name__ == "__main__":
 
     else:
         print("\nNo samples returned.\n")
-
-
-
